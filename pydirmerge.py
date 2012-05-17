@@ -29,8 +29,9 @@ def moveFiles(files, old_path, new_path, v_mode):
         destination = f.replace(old_path, new_path)
         if not os.path.exists(destination):
             if v_mode:
-                print 'Moving: from %s to %s' % (f, destination)
-            shutil.move(f, destination)
+                print 'Copying: from %s to %s' % (f, destination)
+            #shutil.move(f, destination)
+            shutil.copyfile(f, destination)
         else:
             if v_mode:
                 print 'Skipped: %s' % f
