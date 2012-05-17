@@ -8,7 +8,7 @@ app_name = 'pydirmerge.py'
 version = '1.0.0'
 input_dirs = []
 output_dir = ''
-help_msg = 'python pydirmerge.py [-v] -i <dirs> -o <dir>\n\n' \
+help_msg = 'pydirmerge.py [-v] -i <dirs> -o <dir>\n\n' \
           '-v           Verbose mode.\n' \
           '-i <dirs>    Directories to merge. Source directories.\n' \
           '-o <dir>     Destination directory.\n' \
