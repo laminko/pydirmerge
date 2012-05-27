@@ -57,8 +57,8 @@ class dirMerger(object):
                 similarity = round(sm.quick_ratio(), 2) * 100
                 tmp_fds = '%s, %s, %s' % (f, destination, similarity)
                 self.dup_files.append(tmp_fds)
-                if self.verbose:
-                    print 'Duplicate file found!'
+                #if self.verbose: #Should be displayed!!!
+                print 'Duplicate file found! Skipped.'
         
     def mergeDirs(self):
         print '>>>Started ...'
