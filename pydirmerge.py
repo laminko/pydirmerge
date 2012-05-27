@@ -17,12 +17,12 @@ class appy(object):
 
 class dirMerger(object):
     
-    def __index__(self):
-        self._input_dirs = []
-        self._output_dir = ''
-        self._verbose = False
-        self._duplicatefiles = ['Source, Destination, Similarity']
-        self._logfile = 'log_%s.log' % datetime.now().isoformat()
+    def __init__(self):
+        self.input_dirs = []
+        self.dup_files = ['Source, Destination, Similarity']
+        self.output_dir = ''
+        self.verbose = False
+        self.logfile = 'log_%s.log' % datetime.now().isoformat()
         
     def recursiveFDs(self, path):
         filepaths = []
@@ -36,48 +36,54 @@ class dirMerger(object):
         for d in dirs:
             destination = d.replace(old_path, new_path)
             if not os.path.exists(destination):
-                if self._verbose:
+                if self.verbose:
                     print 'Creating: %s' % destination
                 os.makedirs(destination)
         
-    def moveFiles(self, files, old_path, new_path):
-        #f = each source file
+    def copyFiles(self, files, old_path, new_path):
         sm = difflib.SequenceMatcher()
+        
+        #f = each source file
         for f in files:
+            
             destination = f.replace(old_path, new_path)
             if not os.path.exists(destination):
-                if self._verbose:
+                if self.verbose:
                     print 'Copying: from %s to %s' % (f, destination)
                 shutil.copyfile(f, destination)
+                
             else:
                 sm.set_seqs(open(f).read(), open(destination).read())
                 similarity = round(sm.quick_ratio(), 2) * 100
-                self._duplicatefiles.append('%s, %s, %s' % (f, destination, similarity))
-                if self._verbose:
+                tmp_fds = '%s, %s, %s' % (f, destination, similarity)
+                self.dup_files.append(tmp_fds)
+                if self.verbose:
                     print 'Duplicate file found!'
         
     def mergeDirs(self):
-        print 'Started ...'
-        for idir in self._input_dirs:
+        print '>>>Started ...'
+        
+        for idir in self.input_dirs:
             fs, ds = self.recursiveFDs(idir) #FILEs, DIRs
-            self.createDirs(ds, idir, self._output_dir)
-            self.moveFiles(fs, idir, self._output_dir)
-        print 'Finished ...'
+            self.createDirs(ds, idir, self.output_dir)
+            self.copyFiles(fs, idir, self.output_dir)
+            
+        print '>>>Finished ...'
         
     def printProlog(self):
         print 'Sources: \n%s\n\nDestination: \n%s' \
-        % ('\n'.join(self._input_dirs), self._output_dir)
+        % ('\n'.join(self.input_dirs), self.output_dir)
         
     def printEpilog(self):
-        print '''Total duplicate found: %d
-        Log file path: %s
-        \n[See log file to view duplicate files.]''' \
-        % (len(self._duplicatefiles) - 1, os.path.join(self._output_dir, self._logfile))
+        print 'Total duplicate found: %d' \
+        '\nLog file path: %s' \
+        '\n\n[See log file to view duplicate files.]' \
+        % (len(self.dup_files) - 1, os.path.join(self.output_dir, self.logfile))
         
     def writeLog(self):
-        print 'Writing log ...'
-        tmp_file = open(os.path.join(self._output_dir, self._logfile), 'w')
-        tmp_file.writelines(self._duplicatefiles)
+        print '>>>Writing log ...'
+        tmp_file = open(os.path.join(self.output_dir, self.logfile), 'w')
+        tmp_file.write('\n'.join(self.dup_files).__add__('\n'))
         tmp_file.close()
     
 if __name__ == '__main__':
@@ -93,9 +99,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     paras = vars(args)
-    obj_dm._input_dirs = paras.get('i')
-    obj_dm._output_dir = ''.join(paras.get('o'))
-    obj_dm._verbose = paras.get('v')
+    
+    obj_dm.input_dirs = paras.get('i')
+    obj_dm.output_dir = ''.join(paras.get('o'))
+    obj_dm.verbose = paras.get('v')
     obj_dm.printProlog()
     obj_dm.mergeDirs()
     obj_dm.writeLog()
