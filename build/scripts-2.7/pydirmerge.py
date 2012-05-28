@@ -1,111 +1,110 @@
 #!/usr/bin/python2.7
+import argparse
 import sys
 import os
 import shutil
 import traceback
+import difflib
 
-app_name = 'pydirmerge.py'
-version = '1.0.0'
-input_dirs = []
-output_dir = ''
-help_msg = 'python pydirmerge.py [-v] -i <dirs> -o <dir>\n\n' \
-          '-v           Verbose mode.\n' \
-          '-i <dirs>    Directories to merge. Source directories.\n' \
-          '-o <dir>     Destination directory.\n' \
-          '-V           Display current version.\n' \
-          '-h, --help   Display help message.\n\n' \
-          'e.g. python pydirmerge.py -i /test1A /test1B -o /resultAB\n'
+from datetime import datetime
 
-def createDirs(dirs, old_path, new_path, v_mode):
-    for d in dirs:
-        destination = d.replace(old_path, new_path)
-        if not os.path.exists(destination):
-            if v_mode:
-                print 'Creating: %s' % destination
-            os.makedirs(destination)
+class appy(object):
+    
+    def __init__(self):
+        self._app_name = 'pydirmerge.py'
+        self._version = '1.0.2'
+        
 
-def moveFiles(files, old_path, new_path, v_mode):
-    for f in files:
-        destination = f.replace(old_path, new_path)
-        if not os.path.exists(destination):
-            if v_mode:
-                print 'Copying: from %s to %s' % (f, destination)
-            #shutil.move(f, destination)
-            shutil.copyfile(f, destination)
-        else:
-            if v_mode:
-                print 'Skipped: %s' % f
-
-def recursiveFDs(path):
-    filepaths = []
-    folders = []
-    for root, dirs, files in os.walk(path):
-        filepaths += [ os.path.join(root, f) for f in files if f != '.directory']
-        folders += [ os.path.join(root, d) for d in dirs ]
-    return (sorted(filepaths), sorted(folders))
+class dirMerger(object):
+    
+    def __init__(self):
+        self.input_dirs = []
+        self.dup_files = ['Source, Destination, Similarity']
+        self.output_dir = ''
+        self.verbose = False
+        self.logfile = 'log_%s.log' % datetime.now().isoformat()
+        
+    def recursiveFDs(self, path):
+        filepaths = []
+        folders = []
+        for root, dirs, files in os.walk(path):
+            filepaths += [ os.path.join(root, f) for f in files if f != '.directory']
+            folders += [ os.path.join(root, d) for d in dirs ]
+        return (sorted(filepaths), sorted(folders))
+        
+    def createDirs(self, dirs, old_path, new_path):
+        for d in dirs:
+            destination = d.replace(old_path, new_path)
+            if not os.path.exists(destination):
+                if self.verbose:
+                    print 'Creating: %s' % destination
+                os.makedirs(destination)
+        
+    def copyFiles(self, files, old_path, new_path):
+        sm = difflib.SequenceMatcher()
+        
+        #f = each source file
+        for f in files:
+            
+            destination = f.replace(old_path, new_path)
+            if not os.path.exists(destination):
+                if self.verbose:
+                    print 'Copying: from %s to %s' % (f, destination)
+                shutil.copyfile(f, destination)
+                
+            else:
+                sm.set_seqs(open(f).read(), open(destination).read())
+                similarity = round(sm.quick_ratio(), 2) * 100
+                tmp_fds = '%s, %s, %s' % (f, destination, similarity)
+                self.dup_files.append(tmp_fds)
+                #if self.verbose: #Should be displayed!!!
+                print 'Duplicate file found! Skipped.'
+        
+    def mergeDirs(self):
+        print '>>>Started ...'
+        
+        for idir in self.input_dirs:
+            fs, ds = self.recursiveFDs(idir) #FILEs, DIRs
+            self.createDirs(ds, idir, self.output_dir)
+            self.copyFiles(fs, idir, self.output_dir)
+            
+        print '>>>Finished ...'
+        
+    def printProlog(self):
+        print 'Sources: \n%s\n\nDestination: \n%s' \
+        % ('\n'.join(self.input_dirs), self.output_dir)
+        
+    def printEpilog(self):
+        print 'Total duplicate found: %d' \
+        '\nLog file path: %s' \
+        '\n\n[See log file to view duplicate files.]' \
+        % (len(self.dup_files) - 1, os.path.join(self.output_dir, self.logfile))
+        
+    def writeLog(self):
+        print '>>>Writing log ...'
+        tmp_file = open(os.path.join(self.output_dir, self.logfile), 'w')
+        tmp_file.write('\n'.join(self.dup_files).__add__('\n'))
+        tmp_file.close()
     
 if __name__ == '__main__':
     
-    val = ''
-    i = 0
-    v_mode = False
-    hasErr = False
+    obj_ap = appy()
+    obj_dm = dirMerger()
     
-    while True:
-        i += 1
-        try:
-            val = sys.argv[i]
-        except:
-            hasErr = True
-            print help_msg
-            break
-        
-        if val == '-i':
-            while True:
-                i += 1
-                if sys.argv[i] == '-o':
-                    i -= 1
-                    break
-                input_dirs.append(os.path.abspath(sys.argv[i]))
-            
-            if len(input_dirs) < 2:
-                print 'There shoud be at least two source directories to merge.'
-                hasErr = True
-                break
-            
-            print 'Source(s):'
-            for idir in input_dirs:
-                print idir
-            hasErr = False
-        
-        if val == '-o':
-            i += 1
-            output_dir = os.path.abspath(sys.argv[i])
-            print 'Destination:\n',output_dir
-            break
-            hasErr = False
-            
-        if val == '-v':
-            v_mode = True
-            
-        if val == '-V':
-            print '%s\n%s\n' % (app_name, version)
-            hasErr = True
-            break
-        
-        if val in ['-h', '--help']:
-            hasErr = True
-            print help_msg
+    parser = argparse.ArgumentParser(description='To merge separated folders into one.')
+    parser.add_argument('-v', action = 'store_true', help = 'Verbose mode.')
+    parser.add_argument('-V', action = 'version', version = 'version %s' % obj_ap._version)
+    parser.add_argument('-i', type = str, required = True, metavar = 'DIR', nargs = '+', help = 'Source folders. AT LEAST TWO FOLDERS REQUIRED.')
+    parser.add_argument('-o', type = str, required = True, metavar = 'DIR', nargs = 1, help = 'Destination folder.')
+    args = parser.parse_args()
     
-    try:
-        if not hasErr:
-            print 'Started'
-            
-            for idir in input_dirs:
-                fs, ds = recursiveFDs(idir) #FILEs, DIRs
-                createDirs(ds, idir, output_dir, v_mode)
-                moveFiles(fs, idir, output_dir, v_mode)
-            
-            print 'Finished'
-    except:
-        print traceback.format_exc()
+    paras = vars(args)
+    
+    obj_dm.input_dirs = paras.get('i')
+    obj_dm.output_dir = ''.join(paras.get('o'))
+    obj_dm.verbose = paras.get('v')
+    obj_dm.printProlog()
+    obj_dm.mergeDirs()
+    obj_dm.writeLog()
+    obj_dm.printEpilog()
+    
