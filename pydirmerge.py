@@ -12,7 +12,7 @@ class appy(object):
     
     def __init__(self):
         self._app_name = 'pydirmerge.py'
-        self._version = '1.0.1'
+        self._version = '1.0.2'
         
 
 class dirMerger(object):
