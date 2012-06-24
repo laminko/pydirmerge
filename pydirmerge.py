@@ -12,7 +12,7 @@ class appy(object):
     
     def __init__(self):
         self._app_name = 'pydirmerge.py'
-        self._version = '1.0.2'
+        self._version = '1.0.3'
         
 
 class dirMerger(object):
@@ -22,8 +22,13 @@ class dirMerger(object):
         self.dup_files = ['Source, Destination, Similarity']
         self.output_dir = ''
         self.verbose = False
+        self.isMergeMove = False
         self.logfile = 'log_%s.log' % datetime.now().isoformat()
+        self.str_verbose_msg = {True : "Moving", False : "Copying"}
         
+    def getNowIsoFormat(self):
+        return datetime.now().isoformat()
+    
     def recursiveFDs(self, path):
         filepaths = []
         folders = []
@@ -49,36 +54,38 @@ class dirMerger(object):
             destination = f.replace(old_path, new_path)
             if not os.path.exists(destination):
                 if self.verbose:
-                    print 'Copying: from %s to %s' % (f, destination)
-                shutil.copyfile(f, destination)
+                    print '%s: from %s to %s' % (self.str_verbose_msg[self.isMergeMove], f, destination)
+                if self.isMergeMove:
+                    shutil.move(f, destination)
+                else:
+                    shutil.copyfile(f, destination)
                 
             else:
                 sm.set_seqs(open(f).read(), open(destination).read())
                 similarity = round(sm.quick_ratio(), 2) * 100
                 tmp_fds = '%s, %s, %s' % (f, destination, similarity)
                 self.dup_files.append(tmp_fds)
-                #if self.verbose: #Should be displayed!!!
                 print 'Duplicate file found! Skipped.'
         
     def mergeDirs(self):
-        print '>>>Started ...'
+        print '>>>Started ... ON: %s' % self.getNowIsoFormat()
         
         for idir in self.input_dirs:
             fs, ds = self.recursiveFDs(idir) #FILEs, DIRs
             self.createDirs(ds, idir, self.output_dir)
             self.copyFiles(fs, idir, self.output_dir)
             
-        print '>>>Finished ...'
+        print '>>>Finished ... ON: %s' % self.getNowIsoFormat()
         
     def printProlog(self):
         print 'Sources: \n%s\n\nDestination: \n%s' \
-        % ('\n'.join(self.input_dirs), self.output_dir)
+            % ('\n'.join(self.input_dirs), self.output_dir)
         
     def printEpilog(self):
         print 'Total duplicate found: %d' \
-        '\nLog file path: %s' \
-        '\n\n[See log file to view duplicate files.]' \
-        % (len(self.dup_files) - 1, os.path.join(self.output_dir, self.logfile))
+            '\nLog file path: %s' \
+            '\n\n[See log file to view duplicate files.]' \
+            % (len(self.dup_files) - 1, os.path.join(self.output_dir, self.logfile))
         
     def writeLog(self):
         print '>>>Writing log ...'
@@ -93,9 +100,12 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='To merge separated folders into one.')
     parser.add_argument('-v', action = 'store_true', help = 'Verbose mode.')
+    parser.add_argument('-m', action = 'store_true', help = 'Merge and Move mode. Default is Merge and Copy mode.')
     parser.add_argument('-V', action = 'version', version = 'version %s' % obj_ap._version)
-    parser.add_argument('-i', type = str, required = True, metavar = 'DIR', nargs = '+', help = 'Source folders. AT LEAST TWO FOLDERS REQUIRED.')
-    parser.add_argument('-o', type = str, required = True, metavar = 'DIR', nargs = 1, help = 'Destination folder.')
+    parser.add_argument('-i', type = str, required = True, metavar = 'DIR', nargs = '+',\
+        help = 'Source folders. AT LEAST TWO FOLDERS REQUIRED.')
+    parser.add_argument('-o', type = str, required = True, metavar = 'DIR', nargs = 1,\
+        help = 'Destination folder.')
     args = parser.parse_args()
     
     paras = vars(args)
@@ -103,6 +113,7 @@ if __name__ == '__main__':
     obj_dm.input_dirs = paras.get('i')
     obj_dm.output_dir = ''.join(paras.get('o'))
     obj_dm.verbose = paras.get('v')
+    obj_dm.isMergeMove = paras.get('m')
     obj_dm.printProlog()
     obj_dm.mergeDirs()
     obj_dm.writeLog()
