@@ -1,0 +1,34 @@
+#################################################################################
+####				Quick Guide				     ####
+#################################################################################
+
+usage: pydirmerge.py [-h] [-v] [-m] [-V] -i DIR [DIR ...] -o DIR
+
+To merge separated folders into one.
+
+optional arguments:
+  -h, --help        show this help message and exit
+  -v                Verbose mode.
+  -m                Merge and Move mode. Default is Merge and Copy mode.
+  -V                show program's version number and exit
+  -i DIR [DIR ...]  Source folders. AT LEAST TWO FOLDERS REQUIRED.
+  -o DIR            Destination folder.
+
+#################################################################################
+####				installation notes			     ####
+#################################################################################
+
+Install
+To extract tar.gz.
+
+~$tar -xf pydirmerge\ latest.tar.gz
+
+Enter into extracted directory.
+
+~$cd pydirmerge\ latest
+
+To install, enter following code.
+
+~$sudo python setup.py install
+
+Enter your root password and press Enter. It will continue installation.

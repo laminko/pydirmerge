@@ -2,14 +2,17 @@
 
 def main():
     from distutils.core import setup
+    from pydirmerge import appy
     
-    setup(name='pydirmerge',
-          version='1.0.0',
-          description='Python directories merger',
-          author='lmk',
-          author_email='lminko.lmk@gmail.com',
-          url='http://code.google.com/p/pydirmerge',
-          scripts=['pydirmerge.py'],
+    obj_ap = appy()
+    
+    setup(name = obj_ap._app_name,
+          version = obj_ap._version,
+          description = obj_ap._description,
+          author = obj_ap._authors,
+          author_email = obj_ap._authors_emails,
+          url = obj_ap._url,
+          scripts = obj_ap._scripts
          )
     
 if __name__ == '__main__':

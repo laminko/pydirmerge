@@ -8,11 +8,19 @@ import difflib
 
 from datetime import datetime
 
+AUTHORS = ['lmk']
+EMAILS = ['lminko.lmk@gmail.com']
+
 class appy(object):
     
     def __init__(self):
         self._app_name = 'pydirmerge.py'
         self._version = '1.0.3'
+        self._description = 'Python directories merger'
+        self._authors = ', '.join(AUTHORS)
+        self._authors_emails = ', '.join(EMAILS)
+        self._url = 'http://code.google.com/p/pydirmerge'
+        self._scripts = ['pydirmerge.py']
         
 
 class dirMerger(object):
@@ -118,4 +126,3 @@ if __name__ == '__main__':
     obj_dm.mergeDirs()
     obj_dm.writeLog()
     obj_dm.printEpilog()
-    
