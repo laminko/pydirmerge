@@ -12,8 +12,7 @@ def main():
           author = obj_ap._authors,
           author_email = obj_ap._authors_emails,
           url = obj_ap._url,
-          scripts = obj_ap._scripts
-         )
+          scripts = obj_ap._scripts)
     
 if __name__ == '__main__':
     main()

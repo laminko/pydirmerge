@@ -1,6 +1,5 @@
-#################################################################################
-####				Quick Guide				     ####
-#################################################################################
+Quick Guide
+###########
 
 usage: pydirmerge.py [-h] [-v] [-m] [-V] -i DIR [DIR ...] -o DIR
 
@@ -14,9 +13,9 @@ optional arguments:
   -i DIR [DIR ...]  Source folders. AT LEAST TWO FOLDERS REQUIRED.
   -o DIR            Destination folder.
 
-#################################################################################
-####				installation notes			     ####
-#################################################################################
+
+installation notes
+##################
 
 Install
 To extract tar.gz.
