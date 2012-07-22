@@ -15,7 +15,7 @@ class appy(object):
     
     def __init__(self):
         self._app_name = 'pydirmerge.py'
-        self._version = '1.0.3'
+        self._version = '1.0.4'
         self._description = 'Python directories merger'
         self._authors = ', '.join(AUTHORS)
         self._authors_emails = ', '.join(EMAILS)
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='To merge separated folders into one.')
     parser.add_argument('-v', action = 'store_true', help = 'Verbose mode.')
-    parser.add_argument('-m', action = 'store_true', help = 'Merge and Move mode. Default is Merge and Copy mode.')
+    parser.add_argument('-m', action = 'store_true', help = 'Use Move and Merge mode. Default is Copy and Merge mode.')
     parser.add_argument('-V', action = 'version', version = 'version %s' % obj_ap._version)
     parser.add_argument('-i', type = str, required = True, metavar = 'DIR', nargs = '+',\
         help = 'Source folders. AT LEAST TWO FOLDERS REQUIRED.')
